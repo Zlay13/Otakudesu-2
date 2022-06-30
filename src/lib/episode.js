@@ -31,7 +31,7 @@ const getDownloadUrl = async (html) => {
       });
     } else {
       const downloadUrl = await getFileUrl($('a:first').attr('href'));
-      if (resolusi.startsWith('Mp4')) {
+      if (downloadUrl.endsWith('mp4')) {
         mp4.push({
           resolusi,
           downloadUrl  

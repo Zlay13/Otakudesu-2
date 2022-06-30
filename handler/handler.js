@@ -21,7 +21,6 @@ const searchAnimeHandler = async (req, res) => {
 
   return res.status(200).json({
     status: 'Ok',
-    message: 'Otakudesu unofficial API by rzkfyn',
     data: {
       result
     }
@@ -35,9 +34,9 @@ const searchAnimeHandler = async (req, res) => {
  */
 const singleAnimeHandler = async (req, res) => {
   const { slug } = req.params;
-  let data;
+  let downloadUrls;
   try {
-    data = await otakudesu.singleAnime(slug);
+    downloadUrls = await otakudesu.singleAnime(slug);
   } catch (e) {
     console.log(e);
     return res.status(500).json({
@@ -46,14 +45,16 @@ const singleAnimeHandler = async (req, res) => {
     });
   }
 
-  if (!data) return res.status(404).json({
+  if (!downloadUrls) return res.status(404).json({
     status: 'Error',
     message: 'Anime tidak ditemukan periksa kembali parameter yang kamu berikan!'
   });
 
   return res.status(200).json({
     status: 'Ok',
-    data
+    data: {
+      downloadUrls
+    }
   });
 }
 
