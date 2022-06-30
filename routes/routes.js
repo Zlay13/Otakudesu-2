@@ -10,6 +10,13 @@ router.get('/', (_, res) => {
   });
 });
 
+router.get('/api', (_, res) => {
+  return res.status(200).json({
+    status: 'Ok',
+    message: 'Otakudesu unofficial API. Made by rzkfyn with <3',
+  });
+});
+
 router.get('/api/search/:keyword', handler.searchAnimeHandler);
 
 router.get('/api/anime/:slug', handler.singleAnimeHandler);
