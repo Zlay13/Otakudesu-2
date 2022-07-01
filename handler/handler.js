@@ -45,7 +45,7 @@ const singleAnimeHandler = async (req, res) => {
 
   if (!data) return res.status(404).json({
     status: 'Error',
-    message: 'Data tidak ditemukan periksa kembali parameter yang kamu berikan!'
+    message: 'Data tidak ditemukan. Periksa kembali parameter yang kamu berikan!'
   });
 
   return res.status(200).json({
@@ -63,7 +63,7 @@ const episodeHandler = async (req, res) => {
   const { slug } = req.params;
   let data;
   try {
-    data = await otakudesu.getEpisode(slug);
+    data = await otakudesu.getEpisodeData(slug);
   } catch (e) {
     console.log(e);
     return res.status(500).json({
@@ -74,7 +74,7 @@ const episodeHandler = async (req, res) => {
 
   if (!data) return res.status(404).json({
     status: 'Error',
-    message: 'Data tidak ditemukan periksa kembali parameter yang kamu berikan!'
+    message: 'Data tidak ditemukan. Periksa kembali parameter yang kamu berikan!'
   });
 
   return res.status(200).json({

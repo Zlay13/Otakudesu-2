@@ -4,25 +4,29 @@ import { BASEURL } from '../../config.js';
 import { mapGenres } from './utils/utils.js';
 
 const createSearchUrl = (keyword) => {
-  return `${BASEURL}/?s=${(keyword
+  return `${BASEURL}/?s=${keyword
     .split(' ')
-    .map(word => word+'+')
-    .join('').slice(0, keyword
-      .split(' ')
-      .map(word => word+'+')
-      .join('').length - 1))}&post_type=anime`;
-}
+    .map((word) => word + '+')
+    .join('')
+    .slice(
+      0,
+      keyword
+        .split(' ')
+        .map((word) => word + '+')
+        .join('').length - 1
+    )}&post_type=anime`;
+};
 
 const createAnimeData = (html) => {
   let result = [];
 
   const $ = cheerio.load(html);
   const animeElements = $('.chivsrc')
-  .children('li')
-  .toString()
-  .split('</li>')
-  .filter(item => item.trim() !== '')
-  .map(item => `${item}</li>`);
+    .children('li')
+    .toString()
+    .split('</li>')
+    .filter((item) => item.trim() !== '')
+    .map((item) => `${item}</li>`);
 
   for (const element of animeElements) {
     const $ = cheerio.load(element);
@@ -42,15 +46,14 @@ const createAnimeData = (html) => {
       poster,
       genres,
       status,
-      rating
+      rating,
     });
   }
 
   return result;
-}
+};
 
 const searchAnime = async (keyword) => {
-  console.log(createSearchUrl(keyword));
   const res = await axios.get(createSearchUrl(keyword));
   const result = createAnimeData(res.data);
   return result;

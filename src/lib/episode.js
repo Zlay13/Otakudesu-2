@@ -1,56 +1,142 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
-import getFileUrl from './zippyshare.js';
 import { BASEURL } from '../../config.js';
 
-const getEpisode = async (slug) => {
+const getEpisodeData = async (slug) => {
   const res = await axios.get(`${BASEURL}/episode/${slug}`);
-  const result = await getDownloadUrl(res.data);
-  return result;
-}
-
-const getDownloadUrl = async (html) => {
-  let result = [];
-  const $ = cheerio.load(html);
-  const downloadUrlEls = $('.download ul li')?.toString()
-  .split('</li>')
-  .filter(item => item.trim() !== '')
-  .map(item => `${item}</li>`);
-
-  if (!downloadUrlEls) return undefined;
+  const $ = cheerio.load(res.data);
+  const episode = getEpisodeTitle($);
+  const streamUrl = getStreamUrl($);
+  const downloadUrls = createDownloadData($);
+  const previousEpisode = getPrevEpisode($);
+  const nextEpisode = getNextEpisode($);
+  const anime = getAnimeData($);
   
-  const mp4 = [];
-  const mkv = [];
-  for (const el of downloadUrlEls) {
+  if (!episode) return undefined;
+
+  return {
+    episode,
+    anime,
+    previousEpisode,
+    nextEpisode,
+    streamUrl,
+    downloadUrls,
+  };
+};
+
+const getEpisodeTitle = ($) => {
+  return $('.venutama .posttl').text();
+};
+
+const getStreamUrl = ($) => {
+  return $('#pembed iframe').attr('src');
+};
+
+const createDownloadData = ($) => {
+  const mp4 = getMp4DownloadUrls($);
+  const mkv = getMkvDownloadUrls($);
+  return {
+    mp4,
+    mkv,
+  };
+};
+
+const getMp4DownloadUrls = ($) => {
+  const result = [];
+  const mp4DownloadEls = $('.download ul:first li')
+    .toString()
+    .split('</li>')
+    .filter((item) => item.trim() !== '')
+    .map((item) => `${item}</li>`);
+
+  for (const el of mp4DownloadEls) {
     const $ = cheerio.load(el);
-    const resolusi = $('strong').text();
-    if ($('a:first').text()?.trim() !== 'ZippyShare') {
-      result.push({
-        resolusi,
-        downloadUrl: 'Tidak tersedia'
+    const urls = $('a')
+      .toString('')
+      .split('</a>')
+      .filter((item) => item.trim() !== '')
+      .map((item) => `${item}</a>`);
+    const links = [];
+
+    for (const url of urls) {
+      const $ = cheerio.load(url);
+      links.push({
+        provider: $('a').text(),
+        url: $('a').attr('href'),
       });
-    } else {
-      const downloadUrl = await getFileUrl($('a:first').attr('href'));
-      if (downloadUrl.endsWith('mp4')) {
-        mp4.push({
-          resolusi,
-          downloadUrl  
-        });
-      } else {
-        mkv.push({
-          resolusi,
-          downloadUrl  
-        });
-      }
     }
+    result.push({
+      resolusi: $('strong').text()?.replace('Mp4 ', ''),
+      links,
+    });
   }
 
-  result.push({
-    mp4,
-    mkv
-  });
+  return result;
+};
+
+const getMkvDownloadUrls = ($) => {
+  const result = [];
+  const mp4DownloadEls = $('.download ul:last li')
+    .toString()
+    .split('</li>')
+    .filter((item) => item.trim() !== '')
+    .map((item) => `${item}</li>`);
+
+  for (const el of mp4DownloadEls) {
+    const $ = cheerio.load(el);
+    const urls = $('a')
+      .toString('')
+      .split('</a>')
+      .filter((item) => item.trim() !== '')
+      .map((item) => `${item}</a>`);
+    const links = [];
+
+    for (const url of urls) {
+      const $ = cheerio.load(url);
+      links.push({
+        provider: $('a').text(),
+        url: $('a').attr('href'),
+      });
+    }
+    result.push({
+      resolusi: $('strong').text()?.replace('Mkv ', ''),
+      links,
+    });
+  }
 
   return result;
-}
+};
 
-export default getEpisode;
+const getPrevEpisode = ($) => {
+  if (!$('.flir a:first').attr('href')?.startsWith('https://otakudesu.watch/episode/')) return null;
+
+  return {
+    slug: $('.flir a:first').attr('href')?.replace('https://otakudesu.watch/episode/', '')?.replace('/', ''),
+    url: $('.flir a:first').attr('href'),
+  };
+};
+
+const getNextEpisode = ($) => {
+  if (!$('.flir a:last').attr('href')?.startsWith('https://otakudesu.watch/episode/')) return null;
+
+  return {
+    slug: $('.flir a:last').attr('href')?.replace('https://otakudesu.watch/episode/', '')?.replace('/', ''),
+    url: $('.flir a:last').attr('href'),
+  };
+};
+
+const getAnimeData = ($) => {
+  if ($('.flir a:nth-child(3)').text().trim() === '' || $('.flir a:nth-child(3)').text() === undefined) {
+    return {
+      slug: $('.flir a:first').attr('href')?.replace('https://otakudesu.watch/anime/', '')?.replace('/', ''),
+      url: $('.flir a:first').attr('href'),
+    };
+  }
+
+  return {
+    slug: $('.flir a:nth-child(2)').attr('href')?.replace('https://otakudesu.watch/anime/', '')?.replace('/', ''),
+    url: $('.flir a:nth-child(2)').attr('href'),
+  };
+};
+
+export default getEpisodeData;
