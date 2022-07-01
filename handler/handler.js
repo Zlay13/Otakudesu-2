@@ -8,9 +8,9 @@ import otakudesu from '../src/otakudesu.js';
  */
 const searchAnimeHandler = async (req, res) => {
   const { keyword } = req.params;
-  let result;
+  let data;
   try {
-    result = await otakudesu.searchAnime(keyword);
+    data = await otakudesu.searchAnime(keyword);
   } catch (e) {
     console.log(e);
     return res.status(500).json({
@@ -21,9 +21,7 @@ const searchAnimeHandler = async (req, res) => {
 
   return res.status(200).json({
     status: 'Ok',
-    data: {
-      result
-    }
+    data
   });
 }
 
@@ -34,9 +32,9 @@ const searchAnimeHandler = async (req, res) => {
  */
 const singleAnimeHandler = async (req, res) => {
   const { slug } = req.params;
-  let downloadUrls;
+  let data;
   try {
-    downloadUrls = await otakudesu.singleAnime(slug);
+    data = await otakudesu.singleAnime(slug);
   } catch (e) {
     console.log(e);
     return res.status(500).json({
@@ -45,16 +43,14 @@ const singleAnimeHandler = async (req, res) => {
     });
   }
 
-  if (!downloadUrls) return res.status(404).json({
+  if (!data) return res.status(404).json({
     status: 'Error',
-    message: 'Anime tidak ditemukan periksa kembali parameter yang kamu berikan!'
+    message: 'Data tidak ditemukan periksa kembali parameter yang kamu berikan!'
   });
 
   return res.status(200).json({
     status: 'Ok',
-    data: {
-      downloadUrls
-    }
+    data
   });
 }
 
@@ -86,7 +82,6 @@ const episodeHandler = async (req, res) => {
     data
   });
 }
-
 
 export default {
   searchAnimeHandler, singleAnimeHandler, episodeHandler

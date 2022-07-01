@@ -50,6 +50,7 @@ const createAnimeData = (html) => {
 }
 
 const searchAnime = async (keyword) => {
+  console.log(createSearchUrl(keyword));
   const res = await axios.get(createSearchUrl(keyword));
   const result = createAnimeData(res.data);
   return result;
