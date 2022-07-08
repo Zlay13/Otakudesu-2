@@ -6,6 +6,29 @@ import otakudesu from '../src/otakudesu.js';
  * @param {express.Request} req 
  * @param {express.Response} res 
  */
+const homeHandler = async (_, res) => {
+  let data;
+  try {
+    data = await otakudesu.getHomeData();
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      status: 'Error',
+      message: 'Internal server error'
+    });
+  }
+
+  return res.status(200).json({
+    status: 'Ok',
+    data
+  });
+}
+
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 const searchAnimeHandler = async (req, res) => {
   const { keyword } = req.params;
   let data;
@@ -84,5 +107,5 @@ const episodeHandler = async (req, res) => {
 }
 
 export default {
-  searchAnimeHandler, singleAnimeHandler, episodeHandler
+  searchAnimeHandler, singleAnimeHandler, episodeHandler, homeHandler
 };
