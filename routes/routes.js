@@ -17,6 +17,8 @@ router.get('/api', (_, res) => {
   });
 });
 
+router.get('/api/home', handler.homeHandler);
+
 router.get('/api/search/:keyword', handler.searchAnimeHandler);
 
 router.get('/api/anime/:slug', handler.singleAnimeHandler);
