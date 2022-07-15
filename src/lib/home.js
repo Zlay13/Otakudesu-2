@@ -1,6 +1,7 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
 import { BASEURL } from '../../config.js';
+import { scrapeAnimeData, splitAnimeEls } from './utils/utils.js';
 
 const getAnimeData = async () => {
   const res = await axios.get(BASEURL);
@@ -20,62 +21,16 @@ const getAnimeData = async () => {
   };
 };
 
-const splitAnimeEl = (html) => {
-  const $ = cheerio.load(html);
-
-  const animes = $('.detpost')
-  .toString()
-  .split('<div class="detpost">')
-  .filter(item => item.trim() !== '')
-  .map(item => `<div class="detpost">${item}`);
-
-  return  animes;
-};
-
 const scrapeOngoingAnime = (html) => {
-  const animes = splitAnimeEl(html)
-  let res = [];
-
-  for (const anime of animes) {
-    const $ = cheerio.load(anime);
-
-    const judul = $('.thumb .thumbz .jdlflm').text().trim();
-    const slug = $('.thumb a').attr('href').replace('https://otakudesu.watch/anime/', '').replace('/', '');
-    const poster = $('.thumb .thumbz img').attr('src');
-    const url = $('.thumb a').attr('href');
-    const episodeTerbaru = $('.epz').text().trim();
-    const hariUpload = $('.epztipe').text().trim();
-    const tanggalTerakhirUpload = $('.newnime').text().trim();
-
-    res.push({
-      judul, slug, poster, url, episodeTerbaru, hariUpload, tanggalTerakhirUpload
-    });
-  }
-
-  return res;
+  const animes = splitAnimeEls(html);
+  const data = scrapeAnimeData(animes);
+  return data;
 };
 
 const scrapeCompleteAnime = (html) => {
-  const animes = splitAnimeEl(html)
-  let res = [];
-
-  for (const anime of animes) {
-    const $ = cheerio.load(anime);
-
-    const judul = $('.thumb .thumbz .jdlflm').text().trim();
-    const slug = $('.thumb a').attr('href').replace('https://otakudesu.watch/anime/', '').replace('/', '');
-    const poster = $('.thumb .thumbz img').attr('src');
-    const url = $('.thumb a').attr('href');
-    const jumlahEpisode = $('.epz').text().trim();
-    const rating = $('.epztipe').text().trim();
-    const tanggalTerakhirUpload = $('.newnime').text().trim();
-
-    res.push({
-      judul, slug, poster, url, jumlahEpisode, rating, tanggalTerakhirUpload
-    });
-  }
-
-  return res;
+  const animes = splitAnimeEls(html);
+  const data = scrapeAnimeData(animes, 'complete');
+  return data;
 };
 
 export default getAnimeData;
