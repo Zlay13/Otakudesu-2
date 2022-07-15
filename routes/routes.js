@@ -25,6 +25,8 @@ router.get('/api/anime/:slug', handler.singleAnimeHandler);
 
 router.get('/api/episode/:slug', handler.episodeHandler);
 
+router.get('/api/ongoing-anime/:page?', handler.ongoingAnimeHandler);
+
 router.use('/', (_, res) => {
   return res.status(404).json({
     status: 'Error',
