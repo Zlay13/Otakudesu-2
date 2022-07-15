@@ -106,6 +106,30 @@ const episodeHandler = async (req, res) => {
   });
 }
 
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
+const ongoingAnimeHandler = async (req, res) => {
+  const { page } = req.params;
+  let data;
+  try {
+    data = await otakudesu.getOngoingAnimeData(page);
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      status: 'Error',
+      message: 'Internal server error'
+    });
+  }
+
+  return res.status(200).json({
+    status: 'Ok',
+    data
+  });
+}
+
 export default {
-  searchAnimeHandler, singleAnimeHandler, episodeHandler, homeHandler
+  searchAnimeHandler, singleAnimeHandler, episodeHandler, homeHandler, ongoingAnimeHandler
 };
